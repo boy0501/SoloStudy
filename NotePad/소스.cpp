@@ -6,36 +6,44 @@
 #include <unordered_map>
 #include <cstring>
 #include <stack>
-
+#include <map>
 using namespace std;
-
-long long func(int a, int b,int c)
-{
-	if (b == 0)
-		return 1;
-	else if(b == 1)
-		return a;
-
-	if (b % 2 == 1)
-	{
-		return func(a, b - 1,c) * a;
-	}
-	long long res = func(a, b / 2, c);
-	res %= c;
-	return (res * res) % c;
-}
 
 int main()
 {
 	std::ios_base::sync_with_stdio(false);
 	std::cin.tie(NULL);
 
+	int N, M;
+	cin >> N >> M;
+	map<string, int> dbojob;
+	for (int i = 0; i < N; ++i)
+	{
+		string tmp;
+		cin >> tmp;
+		dbojob[tmp]++;
+	}
+	for (int i = 0; i < M; ++i)
+	{
+		string tmp;
+		cin >> tmp;
+		dbojob[tmp]++;
+	}
+	int res = 0;
+	vector<string> people;
 
-	int a, b, c;
-	cin >> a >> b >> c;
-
-	cout << func(a, b, c) % c;
-
+	for (auto& person : dbojob)
+	{
+		if (person.second == 2)
+		{
+			res++;
+			people.push_back(person.first);
+		}
+	}
+	cout << res << endl;
+	for (auto& person : people)
+	{
+		cout << person << endl;
+	}
 	return 0;
 }
-
