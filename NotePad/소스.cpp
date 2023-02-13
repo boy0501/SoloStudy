@@ -7,6 +7,7 @@
 #include <cstring>
 #include <stack>
 #include <map>
+#include <cmath>
 using namespace std;
 
 int main()
@@ -14,60 +15,64 @@ int main()
 	std::ios_base::sync_with_stdio(false);
 	std::cin.tie(NULL);
 
-	string tmp;
-	cin >> tmp;
+	int N, M;
+	cin >> N >> M;
 
-	int left{}, right{};
-
-	int cntNum = 0;
-	int Separator = 0;
-	bool minustrig = false;
-	bool first = false;
-	for (auto c : tmp)
+	queue<pair<int, int>> q;
+	q.push(make_pair(N, 0));
+	int res = 0;
+	while (!q.empty())
 	{
-		if (c == '+')
+		auto item = q.front();
+		q.pop();
+		if (item.first == M)
 		{
-			string num{ tmp.begin() + Separator, tmp.begin() + cntNum };
-			int cal = atoi(num.c_str());
-			right += cal;
-			Separator = ++cntNum;
+			res = item.second;
+			break;
 		}
-		else if (c == '-')
+		if (item.first * 2 <= M)
 		{
-			minustrig = true;
-			string num{ tmp.begin() + Separator, tmp.begin()+cntNum };
-			int cal = atoi(num.c_str());
-			right += cal;
-			if (first == 0)
+			q.push(make_pair(item.first * 2, item.second + 1));
+			q.push(make_pair(item.first + 1, item.second + 1));
+
+		}
+		else if (item.first * 3 <= M)
+		{
+			int a = M / 2;
+			q.push(make_pair(a,item.second +  a - item.first));
+		}
+		else if (item.first * 4 <= M)
+		{
+			int a = M / 2;
+			q.push(make_pair(a, item.second + a - (item.first * 2) + 1));
+			//q.push(make_pair(item.first - 1, item.second + 1));
+		}
+		else if (item.first * 2 > M)
+		{				
+			if (item.first * 2 - 1 == M)
 			{
-				left = right;
-				right = 0;
-				first = true;
+				q.push(make_pair(item.first * 2 - 1, item.second + 2));
+			}
+			else if (item.first * 3 / 2 <= M)
+			{
+				int a = floor((M / 2.0) + 0.5);
+				q.push(make_pair(a, item.second + item.first - a));
+
 			}
 			else {
-				left -= right;
-				right = 0;
+				q.push(make_pair(item.first * 2, item.second + 1));
+				q.push(make_pair(item.first + 1, item.second + 1));
+				q.push(make_pair(item.first - 1, item.second + 1));
 			}
-			Separator = ++cntNum;
 		}
-		else {
-			cntNum++;
+		else{
+			q.push(make_pair(item.first * 2, item.second + 1));
+			q.push(make_pair(item.first + 1, item.second + 1));
+			q.push(make_pair(item.first - 1, item.second + 1));
 		}
 	}
 
-	string num{ tmp.begin() + Separator, tmp.begin() + cntNum };
-	int cal = atoi(num.c_str());
-	right += cal;
-
-	if (minustrig)
-	{
-		left -= right;
-	}
-	else {
-		left += right;
-	}
-	cout << left;
-
+	cout << res;
 
 	return 0;
 }
