@@ -5,6 +5,7 @@
 #include <queue>
 #include <unordered_map>
 #include <cstring>
+#include <string>
 #include <stack>
 #include <map>
 #include <cmath>
@@ -15,64 +16,31 @@ int main()
 	std::ios_base::sync_with_stdio(false);
 	std::cin.tie(NULL);
 
-	int N, M;
-	cin >> N >> M;
+	string num;
+	cin >> num;
 
-	queue<pair<int, int>> q;
-	q.push(make_pair(N, 0));
-	int res = 0;
-	while (!q.empty())
+	int digit = num.length();
+
+	int value = atoi(num.c_str());
+	int ex = value - (digit * 9);
+	int res = 1'111'111;
+	
+	for (int i = ex; i < value; ++i)
 	{
-		auto item = q.front();
-		q.pop();
-		if (item.first == M)
+		string tmp;
+		tmp = to_string(i);
+		int k = i;
+		for (auto c : tmp)
 		{
-			res = item.second;
-			break;
+			k += c - '0';
 		}
-		if (item.first * 2 <= M)
+		if (value == k)
 		{
-			q.push(make_pair(item.first * 2, item.second + 1));
-			q.push(make_pair(item.first + 1, item.second + 1));
-
-		}
-		else if (item.first * 3 <= M)
-		{
-			int a = M / 2;
-			q.push(make_pair(a,item.second +  a - item.first));
-		}
-		else if (item.first * 4 <= M)
-		{
-			int a = M / 2;
-			q.push(make_pair(a, item.second + a - (item.first * 2) + 1));
-			//q.push(make_pair(item.first - 1, item.second + 1));
-		}
-		else if (item.first * 2 > M)
-		{				
-			if (item.first * 2 - 1 == M)
-			{
-				q.push(make_pair(item.first * 2 - 1, item.second + 2));
-			}
-			else if (item.first * 3 / 2 <= M)
-			{
-				int a = floor((M / 2.0) + 0.5);
-				q.push(make_pair(a, item.second + item.first - a));
-
-			}
-			else {
-				q.push(make_pair(item.first * 2, item.second + 1));
-				q.push(make_pair(item.first + 1, item.second + 1));
-				q.push(make_pair(item.first - 1, item.second + 1));
-			}
-		}
-		else{
-			q.push(make_pair(item.first * 2, item.second + 1));
-			q.push(make_pair(item.first + 1, item.second + 1));
-			q.push(make_pair(item.first - 1, item.second + 1));
+			res = min(res, i);
 		}
 	}
-
+	if (res == 1'111'111)
+		cout << 0;
 	cout << res;
-
 	return 0;
 }
