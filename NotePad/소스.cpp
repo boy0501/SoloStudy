@@ -16,44 +16,28 @@ int main()
 	std::ios_base::sync_with_stdio(false);
 	std::cin.tie(NULL);
 
-	int n;
-	cin >> n;
+	int n,m;
+	string s;
+	cin >> n >> m >> s;
+
+	string ioi;
+	for (int i = 0; i < n; ++i)
+	{
+		ioi += "IO";
+	}
+	ioi += "I";
 
 	int res = 0;
-	int digit2 = 0;
-	int digit5 = 0;
-	for (int i = 1; i <= n; ++i)
+	for (int i = 0; i < m; ++i)
 	{
-		if (i % 125 == 0)
+		string::size_type n;
+		n = s.find(ioi, i);
+		if (string::npos != n)
 		{
-			digit5 += 3;
-		}
-		else if (i % 100 == 0)
-		{
-			res += 2;
-		}
-		else if (i % 25 == 0)
-		{
-			digit5 += 2;
-		}
-		else if (i % 10 == 0)
-		{
-			res += 1;
-		}
-		else if (i % 5 == 0)
-		{
-			digit5++;
-		}
-		else if (i % 2 == 0)
-		{
-			digit2++;
+			res++;
+			i = n;
 		}
 	}
-
-	res += min(digit5, digit2);
-
 	cout << res;
-
-
 	return 0;
 }
