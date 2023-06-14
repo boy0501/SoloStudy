@@ -69,13 +69,12 @@ int main()
 		// 기준 1. 거짓을 말해도 되는 순 
 		// 기준 2. 영향 받는 사람의 수가 높은 순
 		sort(parties.begin(), parties.end(), [](const pair<vector<int>, int>& a, const pair<vector<int>, int>& b) {
-			return b.second < a.second;
-			if (b.second < a.second)
+			if (b.second == a.second)
 			{
-				return true;
+				return b.first.size() < a.first.size();
 			}
 			else {
-				return b.first.size() < a.first.size();
+				return b.second < a.second;
 			}
 		});
 
