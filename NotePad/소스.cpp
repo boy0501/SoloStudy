@@ -19,42 +19,7 @@ public:
 	Node(){};
 };
 #define inf 100000001
-int visit[801];
-int dp[801][801];
-int ddp[801];
 
-int DP(int start, int end, vector<Node>& vec)
-{
-	memcpy(ddp, dp[start], sizeof(ddp));
-	ddp[start] = 0;
-	fill_n(visit, sizeof(visit) / sizeof(int), 0);
-	visit[start] = true;
-
-	priority_queue<pair<int, int>> pq;
-
-	pq.push(make_pair(start, 0));
-	while (!pq.empty())
-	{
-		int cur = pq.top().first;
-		int cost = -pq.top().second;
-		pq.pop();
-
-		if (ddp[cur] < cost) continue;
-		for (int i = 0; i < vec[cur].next.size(); ++i)
-		{
-			int next = vec[cur].next[i].first;
-			int nextcost = cost + vec[cur].next[i].second;
-			if (nextcost <= ddp[next])
-			{
-				ddp[next] = nextcost;
-				pq.push(make_pair(next, -nextcost));
-			}
-		}
-	}
-	
-	return ddp[end];
-
-}
 
 int main()
 {
@@ -63,32 +28,87 @@ int main()
 
 	int n, m;
 	cin >> n >> m;
-	vector<Node> vec;
-	vec.resize(n + 1);
-	fill_n(dp[0], sizeof(dp) / sizeof(int), inf);
-	fill_n(ddp, sizeof(ddp) / sizeof(int), inf);
+	int pcnt;
+	unordered_map<int, int> truth;
+	vector<pair<vector<int>,int>> parties;
+	cin >> pcnt;
+	for (int i = 0; i < pcnt; ++i)
+	{
+		int t;
+		cin >> t;
+		truth[t] = 1;
+	}
+	int res = 0;
+	int affected = false;
 	for (int i = 0; i < m; ++i)
 	{
-		int a, b, c;
-		cin >> a >> b >> c;
-		vec[a].next.push_back(make_pair(b, c));
-		vec[b].next.push_back(make_pair(a, c));
-		dp[a][b] = c;
-		dp[b][a] = c;
-
+		int cnt;
+		bool JustSpeakTrue = false;
+		cin >> cnt;
+		vector<int> party;
+		for (int j = 0; j < cnt; ++j)
+		{
+			int person;
+			cin >> person;
+			if (truth[person] > 0)
+			{
+				affected = true;
+				JustSpeakTrue = true;
+			}
+			party.push_back(person);
+		}
+		parties.push_back(make_pair(party, JustSpeakTrue));	//진실을 말해야하면 영향받는 사람갯수 - cnt 
 	}
-	int mid1, mid2;
-	cin >> mid1 >> mid2;
 
-	int stm1 = DP(1, mid1, vec);
-	stm1 += DP(mid2, n, vec);
-	int stm2 = DP(1, mid2, vec);
-	stm2 += DP(mid1, n, vec);
-	int mtm = DP(mid1, mid2, vec);
+	int partynum = 0;
+	while (affected && partynum != m)
+	{
+		partynum++;
+		affected = false;
+		//정렬 
+		// 기준 1. 거짓을 말해도 되는 순 
+		// 기준 2. 영향 받는 사람의 수가 높은 순
+		sort(parties.begin(), parties.end(), [](const pair<vector<int>, int>& a, const pair<vector<int>, int>& b) {
+			return b.second < a.second;
+			if (b.second < a.second)
+			{
+				return true;
+			}
+			else {
+				return b.first.size() < a.first.size();
+			}
+		});
 
-	int res = min(stm1, stm2) + mtm;
-	if (res >= inf)
-		res = -1;
-	cout << res;
+		for (auto& party : parties)
+		{
+			for (auto& person : party.first)
+			{
+				if (truth[person] > 0)
+				{
+					affected = true;	//영향을 받았으니 한번 더 검사
+					for (auto& per : party.first)
+					{
+						truth[per] = 1;
+					}
+					break;
+				}
+			}
+		}
+	}
+
+	int truthparty = 0;
+	for (auto& party : parties)
+	{
+		for (auto& person : party.first)
+		{
+			if (truth[person] > 0)
+			{
+				truthparty++;
+				break;
+			}
+		}
+	}
+
+	cout << m - truthparty << endl;
 	return 0;
 }
