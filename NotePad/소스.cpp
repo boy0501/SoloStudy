@@ -20,11 +20,11 @@ public:
 };
 #define inf 100000001
 
-int dfs(int start,int end,int level)
+long long dfs(long long start, long long end, long long level)
 {
 	if (start == end) return level;
 	if (start > end) return 0;
-	int res = 0;
+	long long res = 0;
 	res += dfs(start * 2, end, level+1);
 	res += dfs(start * 10 + 1, end, level+ 1);
 
@@ -38,7 +38,7 @@ int main()
 
 	int start,end;
 	cin >> start >> end;
-	int res = dfs(start, end, 0);
+	long long res = dfs(start, end, 0);
 	if (res == 0)
 		cout << -1;
 	else
