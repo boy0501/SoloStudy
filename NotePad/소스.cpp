@@ -14,180 +14,98 @@
 #include <functional>
 using namespace std;
 
-int res[1001];
+struct Node {
+public:
+	int others[201];
+};
 
-vector<vector<int>> d;
-int N;
+Node nodes[201];
+int visit[201]{ 0, };
 
-int dfs(int depth,int prev)
+int N, M;
+
+int calcul(int start)
 {
-	if (depth == N)
-	{
-		return 0;
-	}
+	int count = 1;
+	visit[start] = true;
+	priority_queue<int> pq;
 
-	auto& vec = d[depth];
+	pq.push(start);
 
-	for (auto& val : vec)
+	while (!pq.empty())
 	{
-		
-		if (prev != val)
+		int t = pq.top();
+		pq.pop();
+
+		for (int i = 0; i < N; ++i)
 		{
-			int k = dfs(depth + 1, val);
-			if (k == 0)
+			int p = nodes[t].others[i];
+			if (p == 1 && visit[i] == false)
 			{
-				res[depth] = val;
-				return 0;
-			}else if (k != -1)
-			{
-				res[depth] = k;
-				return k;
+				visit[i] = true;
+				nodes[start].others[i] = true;
+				nodes[i].others[start] = true;
+				count++;
+				pq.push(i);
 			}
 		}
 	}
-
-	return -1;
-}
-
-int udfs(int depth, int prev)
-{
-	if (depth == -1)
-	{
-		return 0;
-	}
-
-	auto& vec = d[depth];
-
-	for (auto& val : vec)
-	{
-
-		if (prev != val)
-		{
-			int k = udfs(depth - 1, val);
-			if (k == 0)
-			{
-				res[depth] = val;
-				return 0;
-			}
-			else if (k != -1)
-			{
-				res[depth] = k;
-				return k;
-			}
-		}
-	}
-
-	return -1;
-}
-
-void gogo(int depth, int value)
-{
-	auto& vec = d[depth];
-
-	for (auto& v : vec)
-	{
-		if (v != value)
-		{
-			res[depth] = v;
-		}
-	}
+	return count;
 }
 
 int main()
 {
 	std::ios_base::sync_with_stdio(false);
 	std::cin.tie(NULL);
+	unordered_map<int, int> trip;
+	cin >> N >> M;
 
-	cin >> N;
-	unordered_map<int, int> check;
-	vector<int> starts;
-
-	int flag = false;
 	for (int i = 0; i < N; ++i)
 	{
-		int dduck;
-		cin >> dduck;
-		vector<int> kindof;
-		if (dduck == 1)
+		for (int j = 0; j < N; ++j)
 		{
-			starts.push_back(i);
-			check[i] = 1;
+			cin >> nodes[i].others[j];
 		}
-		for (int j = 0; j < dduck; ++j)
-		{
-			int k;
-			cin >> k;
-			kindof.push_back(k);
-		}
-
-		d.push_back(kindof);
 	}
+
+	for (int i = 0; i < M; ++i)
+	{
+		int k;
+		cin >> k;
+		trip[k - 1] = 1;
+	}
+
+	int count = 0;
 	for (int i = 0; i < N; ++i)
 	{
-		for (auto& start : starts)
+		fill_n(visit, 201, 0);
+		if (visit[i] == 0)
 		{
-			int mi = start - 1;
-			int ma = min(start + 1, N - 1);
-			auto& dma = d[ma];
-			if(mi != -1)
-				d[mi].erase(remove(d[mi].begin(), d[mi].end(), d[start][0]), d[mi].end());
-			if(ma != N -1)
-				dma.erase(remove(dma.begin(), dma.end(), d[start][0]), dma.end());
+			count += calcul(i);
 		}
+		//if (count == N)
+		//	break;
+	}
 
-		starts.clear();
-
-		for (int j = 0; j < d.size(); ++j)
+	for (int i = 0; i < N; ++i)
+	{
+		for (int j = 0; j < N; ++j)
 		{
-			if (d[j].size() == 0)
-			{
-				cout << -1 << endl;
-				return 0;
-			}
-			else if (d[j].size() == 1)
-			{
-				starts.push_back(j);
-			}
-		}
+			if (i == j) continue;
 
-		if (starts.size() > 1)
-		{
-			//1종류만 있는게 서로 붙어있는 경우 예외
-			int prev = starts[0];
-
-			for (int i = 1; i < starts.size(); ++i)
+			if (nodes[i].others[j] == 0)
 			{
-				if (prev + 1 == starts[i])
+				if (trip[i] == 1 && trip[j] == 1)
 				{
-					if (d[prev] == d[starts[i]])
-					{
-						flag = true;
-					}
+					cout << "NO";	//여행못감
+					return 0;
 				}
-
-				prev = starts[i];
 			}
 
-			if (flag)
-			{
-				cout << -1 << endl;
-				return 0;
-			}
 		}
+
 	}
 
-
-	dfs(0, 0);
-	if (res[N - 1] == 0) {
-		cout << -1 << endl;
-	}
-	else {
-
-		for (int i = 0; i < N; ++i)
-		{
-			cout << res[i] << endl;
-		}
-	}
-
+	cout << "YES";
 	return 0;
 }
