@@ -23,8 +23,17 @@ public:
 		cout << "Network" << endl;
 	};
 	void discon() {};
+
+	void sendpp() { cout << " dd\n" << k; };
+
+
+	void func(void(Network::* fp)(void))
+	{
+		(*this.*fp)();
+	}
+
 protected:
-	int k;
+	int k = 7;
 };
 
 class Object {
@@ -33,68 +42,24 @@ public:
 	virtual ~Object() {
 		cout << "Object" << endl;
 	};
+
+	void func(void(Network::* fp)(void),Network n)
+	{
+		(n.*fp)();
+	}
+
 protected:
 	int x, y, z;
 };
-
-class Player :public Object, public Network
-{
-public:
-	Player(int i)
-	{
-		k = i;
-		x = 1;
-	}
-	virtual ~Player()
-	{
-		cout << "Player" << endl;
-	}
-	void print() {
-		cout << " d" << k<<endl;
-	}
-
-};
-
-class Obstacle : public Object, public Network
-{
-public:
-	Obstacle(int i)
-	{
-		k = i;
-	}
-	virtual ~Obstacle() {
-		cout << "Objstacle\n";
-	}
-	void print()
-	{
-		cout << "k" << k <<endl;
-	}
-};
-
-
-Object* Objects[100];
 
 int main()
 {
 	std::ios_base::sync_with_stdio(false);
 	std::cin.tie(NULL);
 
-	string k = "*";
-	Objects[0] = new Player(12);
-	Objects[1] = new Obstacle(5);
-
-	Network* p = dynamic_cast<Network*>(Objects[1]);
-
-	if (p != nullptr)
-	{
-		p->discon();
-	}
-
-	for (auto& p : Objects)
-	{
-		delete p;
-	}
-
-	cout << "k" << endl;
+	Object o;
+	Network n;
+	o.func(&Network::sendpp, n);
+	n.func(&Network::sendpp);
 	return 0;
 }
