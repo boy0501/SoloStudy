@@ -14,78 +14,87 @@
 #include <functional>
 using namespace std;
 
-int visit[35][35]{};
-double dir[4];
-double result;
-int N;
-double dfs(int cnt, int x,int y,double percent)
+class Network {
+
+public:
+	Network() {};
+	virtual ~Network() {
+	
+		cout << "Network" << endl;
+	};
+	void discon() {};
+protected:
+	int k;
+};
+
+class Object {
+public:
+	Object() {};
+	virtual ~Object() {
+		cout << "Object" << endl;
+	};
+protected:
+	int x, y, z;
+};
+
+class Player :public Object, public Network
 {
-	if (cnt == N) {
-		result += percent;
-		return percent;
-	}
-	double k = 0.0;
-	if (visit[y+1][x] == false)
+public:
+	Player(int i)
 	{
-		if (dir[0] > 0.0)
-		{
-			visit[y + 1][x] = true;
-			k = dfs(cnt + 1, x, y + 1, percent * dir[0]);
-			visit[y + 1][x] = false;
-		}
+		k = i;
+		x = 1;
 	}
-	if (visit[y - 1][x] == false)
+	virtual ~Player()
 	{
-		if (dir[1] > 0.0)
-		{
-			visit[y - 1][x] = true;
-			k = dfs(cnt + 1, x, y - 1, percent * dir[1]);
-			visit[y - 1][x] = false;
-		}
+		cout << "Player" << endl;
 	}
-	if (visit[y][x + 1] == false)
-	{
-		if (dir[2] > 0.0)
-		{
-			visit[y][x + 1] = true;
-			k = dfs(cnt + 1, x + 1, y, percent * dir[2]);
-			visit[y][x + 1] = false;
-		}
-	}
-	if (visit[y][x - 1] == false)
-	{
-		if (dir[3] > 0.0)
-		{
-			visit[y][x - 1] = true;
-			k = dfs(cnt + 1, x - 1, y, percent * dir[3]);
-			visit[y][x - 1] = false;
-		}
+	void print() {
+		cout << " d" << k<<endl;
 	}
 
-	return k;
-}
+};
+
+class Obstacle : public Object, public Network
+{
+public:
+	Obstacle(int i)
+	{
+		k = i;
+	}
+	virtual ~Obstacle() {
+		cout << "Objstacle\n";
+	}
+	void print()
+	{
+		cout << "k" << k <<endl;
+	}
+};
+
+
+Object* Objects[100];
+
 int main()
 {
 	std::ios_base::sync_with_stdio(false);
 	std::cin.tie(NULL);
 
-	cin >> N;
-	for (int i = 0; i < 4; ++i)
+	string k = "*";
+	Objects[0] = new Player(12);
+	Objects[1] = new Obstacle(5);
+
+	Network* p = dynamic_cast<Network*>(Objects[1]);
+
+	if (p != nullptr)
 	{
-		int k;
-		cin >> k;
-		dir[i] = k / 100.0;
+		p->discon();
 	}
 
-	int sx = 15, sy = 15;
+	for (auto& p : Objects)
+	{
+		delete p;
+	}
 
-	visit[sy][sx] = 1;
-
-	dfs(0, sx, sy, 1);
-
-	cout.precision(10);
-	cout << result;
-
-
+	cout << "k" << endl;
 	return 0;
 }
