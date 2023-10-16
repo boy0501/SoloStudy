@@ -25,7 +25,7 @@ public:
 	int me;
 	int next;
 	int value;
-
+	int maxvalue = -1;
 	Node* prev = nullptr;
 
 	bool operator <(const Node* a) const
@@ -94,6 +94,7 @@ vector<int> solution(int n, vector<vector<int>> paths, vector<int> gates, vector
 	{
 		auto node = pq.top();
 		pq.pop();
+		if (visits[node->next] == true) continue;
 		for (auto& goal : summits)
 		{
 			if (node->next == goal)
@@ -102,7 +103,7 @@ vector<int> solution(int n, vector<vector<int>> paths, vector<int> gates, vector
 				{
 					resTemp.push_back(goal);
 					resTemp.push_back(record(node, node->value));
-					if (resTemp[0] < answer[0] && resTemp[1] <= answer[1])
+					if (resTemp[0] <= answer[0] && resTemp[1] <= answer[1])
 					{
 						answer.clear();
 						answer = resTemp;
@@ -114,13 +115,7 @@ vector<int> solution(int n, vector<vector<int>> paths, vector<int> gates, vector
 				}
 			}
 		}
-		if (visits[node->me] == false)
-		{
-			visits[node->me] = true;
-			visitCnt++;
-			if (visitCnt == n)
-				goto ending;
-		}
+		visits[node->me] = true;
 		for (auto& goal : summits)
 		{
 			if (node->next == goal)
@@ -166,11 +161,25 @@ int main()
 	std::ios_base::sync_with_stdio(false);
 	std::cin.tie(NULL);
 
-	vector<vector<int>> paths{ {1, 2, 5}, {1, 4, 1}, {2, 3, 1},
-		{2, 6, 7}, {4, 5, 1}, {5, 6, 1}, {6, 7, 1} };
-	vector<int> gates{ 3,7 };
-	vector<int> summits{ 1,5 };
-	for (auto& p : solution(7, paths, gates, summits))
+	/*
+	{{1, 2, 3}, {2, 3, 5}, {2, 4, 2},
+	{2, 5, 4}, {3, 4, 4}, {4, 5, 3}, {4, 6, 1}, {5, 6, 1}};
+	
+	{{1, 4, 4}, {1, 6, 1}, {1, 7, 3}, 
+	{2, 5, 2}, {3, 7, 4}, {5, 6, 6}};
+
+	{{1, 2, 5}, {1, 4, 1}, {2, 3, 1}, {2, 6, 7}
+	, {4, 5, 1}, {5, 6, 1}, {6, 7, 1}};
+
+	{{1, 3, 10}, {1, 4, 20}, {2, 3, 4}, 
+	{2, 4, 6}, {3, 5, 20}, {4, 5, 6}};
+	*/
+	vector<vector<int>> paths{ {1, 2, 3}, {2, 3, 5}, {2, 4, 2},
+	{2, 5, 4}, {3, 4, 4}, {4, 5, 3}, {4, 6, 1}, {5, 6, 1} };
+	
+	vector<int> gates{ 1,3 };
+	vector<int> summits{ 5 };
+	for (auto& p : solution(6, paths, gates, summits))
 	{
 		cout << p << endl;
 	}
