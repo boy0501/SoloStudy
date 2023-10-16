@@ -74,7 +74,6 @@ int record(Node* curr, int maxvalue)
 
 vector<int> solution(int n, vector<vector<int>> paths, vector<int> gates, vector<int> summits) {
 
-	int visitCnt = 0;
 	vector<int> resTemp;
 	for (auto& path : paths)
 	{
@@ -101,12 +100,12 @@ vector<int> solution(int n, vector<vector<int>> paths, vector<int> gates, vector
 			{
 				if (!answer.empty())
 				{
-					resTemp.push_back(goal);
-					resTemp.push_back(record(node, node->value));
-					if (resTemp[0] <= answer[0] && resTemp[1] <= answer[1])
+					int tmpInten = record(node, node->value);
+					if (answer[1] >= tmpInten && answer[0] > goal)
 					{
 						answer.clear();
-						answer = resTemp;
+						answer.push_back(goal);
+						answer.push_back(tmpInten);
 					}
 				}
 				else {
@@ -150,8 +149,6 @@ vector<int> solution(int n, vector<vector<int>> paths, vector<int> gates, vector
 ending:
 	while (!pq.empty())
 		pq.pop();
-
-	// reverse(answer.begin(), answer.end());
 
 	return answer;
 }
