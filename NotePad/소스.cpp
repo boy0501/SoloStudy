@@ -18,49 +18,83 @@
 using namespace std;
 using namespace chrono;
 
-long long arr[50'100];
+class Node {
+public:
+	int value;
+	Node* parent = nullptr;
+};
+
+Node node[1'000'010];
+
+
+bool find(Node* Older, Node* Younger,int cnt)
+{
+	if (cnt > 1'000'010) return false;
+	if (Younger->parent == nullptr) return false;
+	if (Younger->parent->value == Older->value)
+	{
+		return true;
+	}
+	else {
+		return find(Older, Younger->parent,cnt+ 1);
+	}
+}
 int main()
 {
 	std::ios_base::sync_with_stdio(false);
 	std::cin.tie(NULL);
-	long long G;
-	cin >> G;
-
-	vector<long long> killa;
-
-	for (long long i = 1; i < 50'100; ++i)
+	int N, M;
+	cin >> N >> M;
+	for (int i = 0; i < M; ++i)
 	{
-		arr[i] = i * i;
+		int a, b;
+		cin >> a >> b;
+		node[a].value = a;
+		node[b].value = b;
+
+		node[b].parent = &node[a];
 	}
 
-	vector<int> res;
-	int start = 1;
-	int end = 2;
-	while(true)
+	vector<string> res;
+	int query;
+	cin >> query;
+	for (int i = 0; i < query; ++i)
 	{
-		if (start == end) break;
-		if (end == 50001) break;
-		if (arr[end] - arr[start] < G)
+		int a, b;
+		cin >> a >> b;
+		if (a == b)
 		{
-			end++;
+			
+			res.push_back("gg");
+			continue;
 		}
-		else if(arr[end] - arr[start] > G ){
-			start++;
-		}
-		else if (arr[end] - arr[start] == G)
+		int res1 = find(&node[a], &node[b],0);
+		int res2 = find(&node[b], &node[a],0);
+
+		if (res1 || res2)
 		{
-			res.push_back(end );
-			end++;
+			if (res1)
+			{
+				res.push_back(to_string(a));
+			}else if (res2)
+			{
+				res.push_back(to_string(b));
+			}
+		}
+		else
+		{
+			res.push_back("gg");
 		}
 	}
-	if (res.empty())
+	if (!res.empty())
 	{
-		cout << -1 << endl;
-		return 0;
+		for (int i = 0; i < res.size() - 1; ++i)
+		{
+			cout << res[i] << " ";
+		}
+		cout << res[res.size() - 1];
+
 	}
-	for (auto p : res)
-	{
-		cout << p << endl;
-	}
+
 	return 0;
 }
