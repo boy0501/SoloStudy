@@ -19,168 +19,106 @@ using namespace std;
 using namespace chrono;
 
 
-class Node {
-public:
-	Node(int a, int b, int c) :me(a), next(b), value(c) {}
-	int me;
-	int next;
-	int value;
-	int maxvalue = -1;
-	Node* prev = nullptr;
-
-	bool operator <(const Node* a) const
-	{
-		if (a->value == this->value)
-		{
-			return a->next < this->next;
-		}
-		return a->value < this->value;
-	}
-
-	bool operator <(const Node a) const
-	{
-		if (a.value == this->value)
-		{
-			return a.next < this->next;
-		}
-		return a.value < this->value;
-	}
-};
-
-class Comp {
-
-public:
-	bool operator()(const Node* a, const Node* b)
-	{
-		if (a->value == b->value)
-			return a->next > b->next;
-		return a->value > b->value;
-	}
-};
-class vector<Node> nodes[50'000];
-int visit[50'000];
-
-int visits[50'000];
-vector<int> answer;
-int record(Node* curr, int maxvalue)
-{
-	if (curr->prev == nullptr)
-	{
-		return max(maxvalue, curr->value);
-	}
-	int maxvalues = max(maxvalue, curr->value);
-	return record(curr->prev, maxvalues);
-}
-
-vector<int> solution(int n, vector<vector<int>> paths, vector<int> gates, vector<int> summits) {
-
-	vector<int> resTemp;
-	for (auto& path : paths)
-	{
-		nodes[path[0]].push_back(Node(path[0], path[1], path[2]));
-		nodes[path[1]].push_back(Node(path[1], path[0], path[2]));
-	}
-
-	priority_queue<Node*, vector<Node*>, Comp> pq;
-	for (auto& gate : gates)
-	{
-		for (auto& p : nodes[gate])
-		{
-			pq.push(&p);
-		}
-	}
-	while (!pq.empty())
-	{
-		auto node = pq.top();
-		pq.pop();
-		if (visits[node->next] == true) continue;
-		for (auto& goal : summits)
-		{
-			if (node->next == goal)
-			{
-				if (!answer.empty())
-				{
-					int tmpInten = record(node, node->value);
-					if (answer[1] >= tmpInten && answer[0] > goal)
-					{
-						answer.clear();
-						answer.push_back(goal);
-						answer.push_back(tmpInten);
-					}
-				}
-				else {
-					answer.push_back(goal);
-					answer.push_back(record(node, node->value));
-				}
-			}
-		}
-		visits[node->me] = true;
-		for (auto& goal : summits)
-		{
-			if (node->next == goal)
-			{
-				goto conti;
-			}
-		}
-		for (auto& p : nodes[node->next])
-		{
-			if (visits[p.next] == false)
-			{
-				if (!answer.empty())
-				{
-					if (answer[1] >= p.value)
-					{
-						p.prev = node;
-						pq.push(&p);
-					}
-				}
-				else {
-					p.prev = node;
-					pq.push(&p);
-
-				}
-			}
-		}
-	conti:
-		;
-
-
-	}
-ending:
-	while (!pq.empty())
-		pq.pop();
-
-	return answer;
-}
-
 int main()
 {
 	std::ios_base::sync_with_stdio(false);
 	std::cin.tie(NULL);
 
-	/*
-	{{1, 2, 3}, {2, 3, 5}, {2, 4, 2},
-	{2, 5, 4}, {3, 4, 4}, {4, 5, 3}, {4, 6, 1}, {5, 6, 1}};
-	
-	{{1, 4, 4}, {1, 6, 1}, {1, 7, 3}, 
-	{2, 5, 2}, {3, 7, 4}, {5, 6, 6}};
-
-	{{1, 2, 5}, {1, 4, 1}, {2, 3, 1}, {2, 6, 7}
-	, {4, 5, 1}, {5, 6, 1}, {6, 7, 1}};
-
-	{{1, 3, 10}, {1, 4, 20}, {2, 3, 4}, 
-	{2, 4, 6}, {3, 5, 20}, {4, 5, 6}};
-	*/
-	vector<vector<int>> paths{ {1, 2, 3}, {2, 3, 5}, {2, 4, 2},
-	{2, 5, 4}, {3, 4, 4}, {4, 5, 3}, {4, 6, 1}, {5, 6, 1} };
-	
-	vector<int> gates{ 1,3 };
-	vector<int> summits{ 5 };
-	for (auto& p : solution(6, paths, gates, summits))
+	int N, M, L;
+	cin >> N >> M >> L;
+	vector<Node> hue;
+	multimap<pair<int, Node*>, Node*, Comp> res;
+	for (int i = 0; i < N; ++i)
 	{
-		cout << p << endl;
+		int t{};
+		cin >> t;
+		hue.push_back(Node(t, -1, -1));
 	}
+
+	hue.push_back(Node(0, -1, -1));
+	hue.push_back(Node(L, -1, -1));
+
+	sort(hue.begin(), hue.end());
+	int minlen = 9999;
+	int maxlen = -1;
+	hue[0].nlen = hue[1].value - hue[0].value;
+	hue[0].cal();
+	for (int i = 1; i < hue.size() - 1; ++i)
+	{
+		hue[i].nlen = hue[i + 1].value - hue[i].value;
+		hue[i].plen = hue[i].value - hue[i - 1].value;
+		hue[i].cal();
+		//minlen = min(minlen, hue[i].length);
+		//maxlen = max(maxlen, hue[i].length);
+	}
+	hue[hue.size() - 1].plen = hue[hue.size() - 1].value - hue[hue.size() - 2].value;
+	hue[hue.size() - 1].cal();
+
+
+
+	for (int i = 0; i < hue.size(); ++i)
+	{
+		res.insert(make_pair(make_pair(max(hue[i].plen, hue[i].nlen), &hue[i]), &hue[i]));
+	}
+	for (int i = 0; i < M; ++i)
+	{
+		Node* t1{}, * t2{};
+		t1 = res.begin()->second;
+		t2 = next(res.begin())->second;
+		bool flag = true;
+		if (t1->value > t2->value)
+			flag = false;
+
+		int nextlen = t1->highlen / 2;
+		int nextpos;
+		if (flag)
+		{
+			nextpos = t1->value + nextlen;
+			t1->nlen = nextpos - t1->value;
+			t2->plen = t2->value - nextpos;
+			t1->cal();
+			t2->cal();
+			res.erase(next(res.begin()));
+			res.erase(res.begin());
+
+			auto insert1 = new Node(t1->value, t1->plen, t1->nlen);
+			auto insert2 = new Node(t2->value, t2->plen, t2->nlen);
+			auto insert3 = new Node(nextpos, t1->nlen, t2->plen);
+			res.insert(make_pair(make_pair(insert1->highlen, insert1), insert1));
+			res.insert(make_pair(make_pair(insert2->highlen, insert2), insert2));
+			res.insert(make_pair(make_pair(insert3->highlen, insert3), insert3));
+		}
+		else
+		{
+			//nextpos = t1->value - nextlen;
+			//t1->plen = t1->value - nextpos;
+			//t2->nlen = nextpos - t2->value;
+			//t1->cal();
+			//t2->cal();
+			//res.erase(next(res.begin()));
+			//res.erase(res.begin());
+			//
+			//
+			//auto insert1 = new Node(t1->value, t1->plen, t1->nlen);
+			//auto insert2 = new Node(t2->value, t2->plen, t2->nlen);
+			//auto insert3 = new Node(nextpos, nextlen, nextlen);
+			//res.insert(make_pair(make_pair(t1->highlen, insert1), insert1));
+			//res.insert(make_pair(make_pair(t2->highlen, insert2), insert2));
+			//res.insert(make_pair(make_pair(nextlen, insert3), insert3));
+		}
+	}
+
+	
+
+	cout << res.begin()->first.first << endl;
+	
 
 	return 0;
 }
 
+/*
+
+6 7 800
+622 411 201 555 755 82
+
+*/
