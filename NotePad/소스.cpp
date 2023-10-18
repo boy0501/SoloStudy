@@ -36,63 +36,66 @@ int main()
 	cin >> str;
 	cin >> boom;
 
+	deque<pair<char,int>> res;
+
 	int cnt = 0;
-
-	if (str[0] == boom[0])
-	{
-		node[0].visit = true;
-		cnt = (cnt + 1) % boom.size();
-	}
-
-	for (int i = 1; i < str.size();++i)
+	int i = 0;
+	for(int i = 0 ; i < str.size() ;++i)
 	{
 		if (str[i] == boom[cnt])
 		{
-			node[i].visit = true;
-			cnt = (cnt + 1) % boom.size();
-			if (node[i - 1].cnt != -1)
-				node[i].cnt = node[i - 1].cnt;
+			cnt++;
+			res.push_back(make_pair(str[i], cnt));
+			
+			if (cnt == boom.size())
+			{
+				for (int j = 0; j < boom.size(); ++j)
+				{
+					res.pop_back();
+				}
+				if (!res.empty())
+					cnt = res.back().second;
+				else
+					cnt = 0;
+			}		
+		
 		}
 		else {
 			if (str[i] == boom[0])
 			{
-				node[i].visit = true;
-				node[i].StackPointer = i - 1;
-				node[i].cnt = cnt;
 				cnt = 1;
+				res.push_back(make_pair(str[i], cnt));
+
+				if (cnt == boom.size())
+				{
+					for (int j = 0; j < boom.size(); ++j)
+					{
+						res.pop_back();
+						cnt--;
+					}
+					if (!res.empty())
+						cnt = res.back().second;
+					else
+						cnt = 0;
+				}
 			}
 			else {
-				if (node[i - 1].cnt != -1)
-				{
-					cnt = node[i - 1].cnt;
-					if (str[i] == boom[cnt])
-					{
-						node[i].visit = true;
-						cnt = (cnt + 1) % boom.size();
-						if (node[i - 1].cnt != -1)
-							node[i].cnt = node[i - 1].cnt;
-					}
-				}
-				else {
-					cnt = 0;
-				}
+				cnt = 0;
+				res.push_back(make_pair(str[i], cnt));
+
 			}
 		}
 	}
-	string res;
-	for (int i = 0; i < str.size(); ++i)
+
+	if (res.empty())
 	{
-		if (node[i].visit)
-			continue;
-		else
-			res.push_back(str[i]);
-	}
-	if (!res.empty())
-	{
-		cout << res;
+		cout << "FRULA";
 	}
 	else {
-		cout << "FRULA";
+		for (auto& p : res)
+		{
+			cout << p.first;
+		}
 	}
 
 	return 0;
