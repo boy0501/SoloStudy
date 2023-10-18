@@ -20,80 +20,79 @@ using namespace chrono;
 
 class Node {
 public:
-	int value;
-	Node* parent = nullptr;
+	int visit;
+	int StackPointer = -1;
+	int cnt = -1;
 };
-
-Node node[1'000'010];
-
-
-bool find(Node* Older, Node* Younger,int cnt)
-{
-	if (cnt > 1'000'010) return false;
-	if (Younger->parent == nullptr) return false;
-	if (Younger->parent->value == Older->value)
-	{
-		return true;
-	}
-	else {
-		return find(Older, Younger->parent,cnt+ 1);
-	}
-}
+Node node[1'000'00];
 int main()
 {
 	std::ios_base::sync_with_stdio(false);
 	std::cin.tie(NULL);
-	int N, M;
-	cin >> N >> M;
-	for (int i = 0; i < M; ++i)
-	{
-		int a, b;
-		cin >> a >> b;
-		node[a].value = a;
-		node[b].value = b;
+	
+	string str;
+	string boom;
 
-		node[b].parent = &node[a];
+	cin >> str;
+	cin >> boom;
+
+	int cnt = 0;
+
+	if (str[0] == boom[0])
+	{
+		node[0].visit = true;
+		cnt = (cnt + 1) % boom.size();
 	}
 
-	vector<string> res;
-	int query;
-	cin >> query;
-	for (int i = 0; i < query; ++i)
+	for (int i = 1; i < str.size();++i)
 	{
-		int a, b;
-		cin >> a >> b;
-		if (a == b)
+		if (str[i] == boom[cnt])
 		{
-			
-			res.push_back("gg");
-			continue;
+			node[i].visit = true;
+			cnt = (cnt + 1) % boom.size();
+			if (node[i - 1].cnt != -1)
+				node[i].cnt = node[i - 1].cnt;
 		}
-		int res1 = find(&node[a], &node[b],0);
-		int res2 = find(&node[b], &node[a],0);
-
-		if (res1 || res2)
-		{
-			if (res1)
+		else {
+			if (str[i] == boom[0])
 			{
-				res.push_back(to_string(a));
-			}else if (res2)
-			{
-				res.push_back(to_string(b));
+				node[i].visit = true;
+				node[i].StackPointer = i - 1;
+				node[i].cnt = cnt;
+				cnt = 1;
+			}
+			else {
+				if (node[i - 1].cnt != -1)
+				{
+					cnt = node[i - 1].cnt;
+					if (str[i] == boom[cnt])
+					{
+						node[i].visit = true;
+						cnt = (cnt + 1) % boom.size();
+						if (node[i - 1].cnt != -1)
+							node[i].cnt = node[i - 1].cnt;
+					}
+				}
+				else {
+					cnt = 0;
+				}
 			}
 		}
+	}
+	string res;
+	for (int i = 0; i < str.size(); ++i)
+	{
+		if (node[i].visit)
+			continue;
 		else
-		{
-			res.push_back("gg");
-		}
+			res.push_back(str[i]);
 	}
 	if (!res.empty())
 	{
-		for (int i = 0; i < res.size() - 1; ++i)
-		{
-			cout << res[i] << " ";
-		}
-		cout << res[res.size() - 1];
-
+		cout << res;
+	}
+	else {
+		cout << "FRULA";
 	}
 
 	return 0;
