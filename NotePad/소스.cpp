@@ -20,218 +20,238 @@ using namespace chrono;
 constexpr int FAILCODE = 9999999;
 deque<deque<int>> arrs;
 
-int r, c, k;
+int n, m;
+int indexing;
+int visit[7][7];
+int arr[7][7];
+/*
+shape는 총 4개
+1 - ┌
+2 - ㄱ
+3 - ㄴ
+4 - ┘
+*/
 
-int dfs(int maxRow, int maxCol, int cnt, char order, deque<deque<int>> arr)
+
+int dfs(int index, int shape)
 {
-	int res = FAILCODE;
-	if (cnt > 101) return FAILCODE;
-	if (maxRow >= r && maxCol >= c)
+	if (index == n * m ) return 0;
+
+	int y = index / indexing + 1;
+	int x = index % indexing + 1;
+	int res = 0;
+
+	switch (shape)
 	{
-		if (order == 'R')
-		{
-			if (arr[r - 1][c - 1] == k)
-				return cnt - 1;
-		}
-		else
-		{
-			if (arr[c - 1][r - 1] == k)
-				return cnt - 1;
-		}
-
+	case 1:
+		if (visit[y + 1][x] == -1 || visit[y + 1][x] == 1) return 0;
+		if (visit[y][x + 1] == -1 || visit[y][x + 1] == 1) return 0;
+		break;
+	case 2:
+		if (visit[y][x - 1] == -1 || visit[y][x - 1] == 1) return 0;
+		if (visit[y + 1][x] == -1 || visit[y + 1][x] == 1) return 0;
+		break;
+	case 3:
+		if (visit[y - 1][x] == -1 || visit[y - 1][x] == 1) return 0;
+		if (visit[y][x + 1] == -1 || visit[y][x + 1] == 1) return 0;
+		break;
+	case 4:
+		if (visit[y - 1][x] == -1 || visit[y - 1][x] == 1) return 0;
+		if (visit[y][x - 1] == -1 || visit[y][x - 1] == 1) return 0;
+		break;
 	}
-	if (order == 'R')
+	res += arr[y][x] * 2;
+	switch (shape)
 	{
-		for (int i = 0; i < maxRow; ++i)
-		{
-			sort(begin(arr[i]), end(arr[i]));
-			vector<pair<int, int>> vec(110);
-			for (auto& p : arr[i])
-			{
-				vec[p] = make_pair(p, vec[p].second + 1);
-			}
-
-			sort(vec.begin(), vec.end(), [](pair<int, int> a, pair<int, int> b) {
-				if (a.second == b.second)
-				{
-					return a.first < b.first;
-				}
-				return a.second < b.second;
-				});
-
-			deque<int> narr;
-			for (int i = 0; i < vec.size(); ++i)
-			{
-				if (vec[i].first == 0) continue;
-				narr.push_back(vec[i].first);
-				narr.push_back(vec[i].second);
-			}
-			arr[i].clear();
-			arr[i] = narr;
-		}
-		int nmax = 0;
-		for (int i = 0; i < maxRow; ++i)
-		{
-			nmax = max(nmax, (int)arr[i].size());
-		}
-
-		for (int i = 0; i < maxRow; ++i)
-		{
-			if (arr[i].size() != nmax)
-			{
-				int asize = arr[i].size();
-				for (int j = 0; j < nmax - asize; ++j)
-					arr[i].push_back(0);
-			}
-		}
-
-		int 열의개수 = nmax;
-		int 행의개수 = arr.size();
-		if (행의개수 >= 열의개수)
-		{
-			res = dfs(행의개수, 열의개수, cnt + 1, 'R', arr);
-		}
-		else {
-			deque<deque<int>> narr;
-
-			for (int i = 0; i < nmax; ++i)
-			{
-				deque<int> tmp;
-				narr.push_back(tmp);
-				for (int j = 0; j < 행의개수; ++j)
-				{
-					narr[i].push_back(arr[j][i]);
-				}
-			}
-
-			res = min(res, dfs(행의개수, 열의개수, cnt + 1, 'C', narr));
-
-		}
-
+	case 1:
+		visit[y + 1][x] = true;
+		visit[y][x + 1] = true;
+		res += arr[y + 1][x];
+		res += arr[y][x + 1];
+		break;
+	case 2:
+		visit[y][x - 1] = true;
+		visit[y + 1][x] = true;
+		res += arr[y][x - 1];
+		res += arr[y + 1][x];
+		break;
+	case 3:
+		visit[y - 1][x] = true;
+		visit[y][x + 1] = true;
+		res += arr[y - 1][x];
+		res += arr[y][x + 1];
+		break;
+	case 4:
+		visit[y - 1][x] = true;
+		visit[y][x - 1] = true;
+		res += arr[y - 1][x];
+		res += arr[y][x - 1];
+		break;
 	}
-	else if (order == 'C')
+	
+	int dfsret = 0;
+
+	for (int i = index + 1; i < n * m; ++i)
 	{
-		for (int i = 0; i < maxCol; ++i)
+		int ny = i / indexing + 1;
+		int nx = i % indexing + 1;
+		if (visit[ny][nx] == true) continue;
+		int ret1 = 0;
+		visit[ny][nx] = true;
+		ret1 = dfs(i, 1);
+		visit[ny][nx] = false;
+		if (ret1 != 0)
 		{
-			sort(begin(arr[i]), end(arr[i]));
-			vector<pair<int, int>> vec(110);
-			for (auto& p : arr[i])
-			{
-				vec[p] = make_pair(p, vec[p].second + 1);
-			}
-
-			sort(vec.begin(), vec.end(), [](pair<int, int> a, pair<int, int> b) {
-				if (a.second == b.second)
-				{
-					return a.first < b.first;
-				}
-				return a.second < b.second;
-				});
-
-			arr[i].clear();
-			deque<int> narr;
-			for (int i = 0; i < vec.size(); ++i)
-			{
-				if (vec[i].first == 0) continue;
-				narr.push_back(vec[i].first);
-				narr.push_back(vec[i].second);
-			}
-			arr[i] = narr;
+			if (visit[ny + 1][nx] == true)
+				visit[ny + 1][nx] = false;
+			if (visit[ny][nx + 1] == true)
+				visit[ny][nx + 1] = false;
 		}
-		int nmax = 0;
-		for (int i = 0; i < maxCol; ++i)
+
+		int ret2 = 0;
+
+		visit[ny][nx] = true;
+		ret2 = dfs(i, 2);
+		visit[ny][nx] = false;
+		if (ret2 != 0)
 		{
-			nmax = max(nmax, (int)arr[i].size());
+			if (visit[ny][nx - 1] == true)
+				visit[ny][nx - 1] = false;
+			if (visit[ny + 1][nx] == true)
+				visit[ny + 1][nx] = false;
 		}
 
-		int 행의개수 = nmax;
-		int 열의개수;
-		for (int i = 0; i < maxCol; ++i)
+
+		int ret3 = 0;
+		visit[ny][nx] = true;
+		ret3 = dfs(i, 3);
+		visit[ny][nx] = false;
+		if (ret3 != 0)
 		{
-			if (arr[i].size() != 행의개수)
-			{
-				int asize = arr[i].size();
-				for (int j = 0; j < 행의개수 - asize; ++j)
-					arr[i].push_back(0);
-			}
+			if (visit[ny - 1][nx] == true)
+				visit[ny - 1][nx] = false;
+			if (visit[ny][nx + 1] == true)
+				visit[ny][nx + 1] = false;
 		}
-		열의개수 = arr.size();
-		if (행의개수 >= 열의개수)
+
+
+		int ret4 = 0;
+		visit[ny][nx] = true;
+		ret4 = dfs(i, 4);
+		visit[ny][nx] = false;
+		if (ret4 != 0)
 		{
-			deque<deque<int>> narr;
-
-			for (int i = 0; i < nmax; ++i)
-			{
-				deque<int> tmp;
-				narr.push_back(tmp);
-				for (int j = 0; j < maxCol; ++j)
-				{
-					narr[i].push_back(arr[j][i]);
-				}
-			}
-			res = dfs(행의개수, 열의개수, cnt + 1, 'R', narr);
+			if (visit[ny - 1][nx] == true)
+				visit[ny - 1][nx] = false;
+			if (visit[ny][nx - 1] == true)
+				visit[ny][nx - 1] = false;
 		}
-		else {
 
-
-			res = min(res, dfs(행의개수, 열의개수, cnt + 1, 'C', arr));
-
-		}
+		dfsret = max(dfsret,max(ret1, max(ret2, max(ret3, ret4))));
+		if (dfsret == 24)
+			break;
 	}
-	return res;
+
+
+	return res + dfsret;
+
 }
+
 int main()
 {
 	std::ios_base::sync_with_stdio(false);
 	std::cin.tie(NULL);
 
-
-	cin >> r >> c >> k;
-
-	for (int i = 0; i < 3; ++i)
+	for (int i = 0; i < 7; ++i)
 	{
-		deque<int> tmp;
-		arrs.push_back(tmp);
-		for (int j = 0; j < 3; ++j)
+		for (int j = 0; j < 7; ++j)
+		{
+			visit[i][j] = -1;
+		}
+	}
+	cin >> n >> m;
+	if (n <= m)
+		indexing = max(n, m);
+	else
+		indexing = min(n, m);
+
+	for (int i = 1; i <= n; ++i)
+	{
+		for (int j = 1; j <= m; ++j)
+		{
+			visit[i][j] = 0;
+		}
+	}
+	for (int i = 1; i <= n; ++i)
+	{
+		for (int j = 1; j <= m; ++j)
 		{
 			int k;
 			cin >> k;
-
-			arrs[i].push_back(k);
+			arr[i][j] = k;
 		}
 	}
-
-	if (3 >= r && 3 >= c)
+	int sum=0;
+	for (int i = 0; i < n * m; ++i)
 	{
-
-		if (arrs[r - 1][c - 1] == k)
+		int ny = i / indexing + 1;
+		int nx = i % indexing + 1;
+		if (visit[ny][nx] == true) continue;
+		int ret1 = 0;
+		visit[ny][nx] = true;
+		ret1 = dfs(i, 1);
+		visit[ny][nx] = false;
+		if (ret1 != 0)
 		{
-			cout << "0";
+			if (visit[ny + 1][nx] == true)
+				visit[ny + 1][nx] = false;
+			if (visit[ny][nx + 1] == true)
+				visit[ny][nx + 1] = false;
 		}
-		else {
-			int res = dfs(3, 3, 1, 'R', arrs);
-			if (res == FAILCODE)
-			{
-				cout << -1;
-			}
-			else {
-				cout << res;
-			}
+
+		int ret2 = 0;
+
+		visit[ny][nx] = true;
+		ret2 = dfs(i, 2);
+		visit[ny][nx] = false;
+		if (ret2 != 0)
+		{
+			if (visit[ny][nx - 1] == true)
+				visit[ny][nx - 1] = false;
+			if (visit[ny + 1][nx] == true)
+				visit[ny + 1][nx] = false;
 		}
+
+
+		int ret3 = 0;
+		visit[ny][nx] = true;
+		ret3 = dfs(i, 3);
+		visit[ny][nx] = false;
+		if (ret3 != 0)
+		{
+			if (visit[ny - 1][nx] == true)
+				visit[ny - 1][nx] = false;
+			if (visit[ny][nx + 1] == true)
+				visit[ny][nx + 1] = false;
+		}
+
+
+		int ret4 = 0;
+		visit[ny][nx] = true;
+		ret4 = dfs(i, 4);
+		visit[ny][nx] = false;
+		if (ret4 != 0)
+		{
+			if (visit[ny - 1][nx] == true)
+				visit[ny - 1][nx] = false;
+			if (visit[ny][nx - 1] == true)
+				visit[ny][nx - 1] = false;
+		}
+
+		sum = max(sum, max(ret1, max(ret2, max(ret3, ret4))));
 
 	}
-	else {
-		int res = dfs(3, 3, 1, 'R', arrs);
-		if (res == FAILCODE)
-		{
-			cout << -1;
-		}
-		else {
-			cout << res;
-		}
-	}
-
-
+	cout << sum;
 
 
 	return 0;
