@@ -18,143 +18,58 @@
 using namespace std;
 using namespace chrono;
 constexpr int FAILCODE = 9999999;
-deque<deque<int>> arrs;
 
-int n, m;
-int indexing;
-int visit[7][7];
-int arr[7][7];
-/*
-shape는 총 4개
-1 - ┌
-2 - ㄱ
-3 - ㄴ
-4 - ┘
-*/
+class Node {
+public:
+	int value;
+	int high;
+};
+
+vector<Node> r;
+vector<vector<int>> getMergedLineSegments(vector<vector<int>> lineSegments) {
+	vector<vector<int>> res;
+	sort(lineSegments.begin(), lineSegments.end(), [](vector<int>& a, vector<int>& b) {
+		if (a[0] == b[0])
+			return a[1] < b[1];
+		return a[0] < b[0];
+		});
 
 
-int dfs(int index, int shape)
-{
-	if (index == n * m ) return 0;
+	int start = -1'000'000'000;
+	int end = -1'000'000'000;
 
-	int y = index / indexing + 1;
-	int x = index % indexing + 1;
-	int res = 0;
-
-	switch (shape)
+	for (int i = 0; i < lineSegments.size(); ++i)
 	{
-	case 1:
-		if (visit[y + 1][x] == -1 || visit[y + 1][x] == 1) return 0;
-		if (visit[y][x + 1] == -1 || visit[y][x + 1] == 1) return 0;
-		break;
-	case 2:
-		if (visit[y][x - 1] == -1 || visit[y][x - 1] == 1) return 0;
-		if (visit[y + 1][x] == -1 || visit[y + 1][x] == 1) return 0;
-		break;
-	case 3:
-		if (visit[y - 1][x] == -1 || visit[y - 1][x] == 1) return 0;
-		if (visit[y][x + 1] == -1 || visit[y][x + 1] == 1) return 0;
-		break;
-	case 4:
-		if (visit[y - 1][x] == -1 || visit[y - 1][x] == 1) return 0;
-		if (visit[y][x - 1] == -1 || visit[y][x - 1] == 1) return 0;
-		break;
-	}
-	res += arr[y][x] * 2;
-	switch (shape)
-	{
-	case 1:
-		visit[y + 1][x] = true;
-		visit[y][x + 1] = true;
-		res += arr[y + 1][x];
-		res += arr[y][x + 1];
-		break;
-	case 2:
-		visit[y][x - 1] = true;
-		visit[y + 1][x] = true;
-		res += arr[y][x - 1];
-		res += arr[y + 1][x];
-		break;
-	case 3:
-		visit[y - 1][x] = true;
-		visit[y][x + 1] = true;
-		res += arr[y - 1][x];
-		res += arr[y][x + 1];
-		break;
-	case 4:
-		visit[y - 1][x] = true;
-		visit[y][x - 1] = true;
-		res += arr[y - 1][x];
-		res += arr[y][x - 1];
-		break;
-	}
-	
-	int dfsret = 0;
-
-	for (int i = index + 1; i < n * m; ++i)
-	{
-		int ny = i / indexing + 1;
-		int nx = i % indexing + 1;
-		if (visit[ny][nx] == true) continue;
-		int ret1 = 0;
-		visit[ny][nx] = true;
-		ret1 = dfs(i, 1);
-		visit[ny][nx] = false;
-		if (ret1 != 0)
+		if (end < lineSegments[i][0])
 		{
-			if (visit[ny + 1][nx] == true)
-				visit[ny + 1][nx] = false;
-			if (visit[ny][nx + 1] == true)
-				visit[ny][nx + 1] = false;
+			//정산
+			if (start > 0)
+			{
+				vector<int> ans;
+				ans.push_back(start);
+				ans.push_back(end);
+				res.push_back(ans);
+			}
+			start = lineSegments[i][0];
 		}
-
-		int ret2 = 0;
-
-		visit[ny][nx] = true;
-		ret2 = dfs(i, 2);
-		visit[ny][nx] = false;
-		if (ret2 != 0)
+		if (end < lineSegments[i][1])
 		{
-			if (visit[ny][nx - 1] == true)
-				visit[ny][nx - 1] = false;
-			if (visit[ny + 1][nx] == true)
-				visit[ny + 1][nx] = false;
+			end = lineSegments[i][1];
 		}
-
-
-		int ret3 = 0;
-		visit[ny][nx] = true;
-		ret3 = dfs(i, 3);
-		visit[ny][nx] = false;
-		if (ret3 != 0)
-		{
-			if (visit[ny - 1][nx] == true)
-				visit[ny - 1][nx] = false;
-			if (visit[ny][nx + 1] == true)
-				visit[ny][nx + 1] = false;
-		}
-
-
-		int ret4 = 0;
-		visit[ny][nx] = true;
-		ret4 = dfs(i, 4);
-		visit[ny][nx] = false;
-		if (ret4 != 0)
-		{
-			if (visit[ny - 1][nx] == true)
-				visit[ny - 1][nx] = false;
-			if (visit[ny][nx - 1] == true)
-				visit[ny][nx - 1] = false;
-		}
-
-		dfsret = max(dfsret,max(ret1, max(ret2, max(ret3, ret4))));
-		if (dfsret == 24)
-			break;
 	}
 
+	vector<int> ans;
+	ans.push_back(start);
+	ans.push_back(end);
+	res.push_back(ans);
+	//map에서 하나씩 빼서 다음게 있나 찾아보고 없으면 Node에 최고 갱신
+	// 다음게 있으면 다음거의 key,value사이에 내꺼 second가 낑겨들어가면 내 노드 최고점 다음껄로 갱신 
+	// 다음게 있는데 key보다 낮으면 그냥 내꺼 최고 갱신
+	// 다음게 있는데 내 value가 다음꺼 노드꺼보다 크면 다 갱신
 
-	return res + dfsret;
 
+
+	return res;
 }
 
 int main()
@@ -162,97 +77,23 @@ int main()
 	std::ios_base::sync_with_stdio(false);
 	std::cin.tie(NULL);
 
-	for (int i = 0; i < 7; ++i)
+	vector<vector<int>> lineSegments;
+	int n;
+	cin >> n;
+	for (int i = 0; i < n; ++i)
 	{
-		for (int j = 0; j < 7; ++j)
-		{
-			visit[i][j] = -1;
-		}
+		int a, b;
+		cin >> a >> b;
+		vector<int> k;
+		k.push_back(a);
+		k.push_back(b);
+		lineSegments.push_back(k);
 	}
-	cin >> n >> m;
-	if (n <= m)
-		indexing = max(n, m);
-	else
-		indexing = min(n, m);
+	auto t= getMergedLineSegments(lineSegments);
 
-	for (int i = 1; i <= n; ++i)
+	for (auto p : t)
 	{
-		for (int j = 1; j <= m; ++j)
-		{
-			visit[i][j] = 0;
-		}
+		cout << p[0] << "," << p[1] << endl;
 	}
-	for (int i = 1; i <= n; ++i)
-	{
-		for (int j = 1; j <= m; ++j)
-		{
-			int k;
-			cin >> k;
-			arr[i][j] = k;
-		}
-	}
-	int sum=0;
-	for (int i = 0; i < n * m; ++i)
-	{
-		int ny = i / indexing + 1;
-		int nx = i % indexing + 1;
-		if (visit[ny][nx] == true) continue;
-		int ret1 = 0;
-		visit[ny][nx] = true;
-		ret1 = dfs(i, 1);
-		visit[ny][nx] = false;
-		if (ret1 != 0)
-		{
-			if (visit[ny + 1][nx] == true)
-				visit[ny + 1][nx] = false;
-			if (visit[ny][nx + 1] == true)
-				visit[ny][nx + 1] = false;
-		}
-
-		int ret2 = 0;
-
-		visit[ny][nx] = true;
-		ret2 = dfs(i, 2);
-		visit[ny][nx] = false;
-		if (ret2 != 0)
-		{
-			if (visit[ny][nx - 1] == true)
-				visit[ny][nx - 1] = false;
-			if (visit[ny + 1][nx] == true)
-				visit[ny + 1][nx] = false;
-		}
-
-
-		int ret3 = 0;
-		visit[ny][nx] = true;
-		ret3 = dfs(i, 3);
-		visit[ny][nx] = false;
-		if (ret3 != 0)
-		{
-			if (visit[ny - 1][nx] == true)
-				visit[ny - 1][nx] = false;
-			if (visit[ny][nx + 1] == true)
-				visit[ny][nx + 1] = false;
-		}
-
-
-		int ret4 = 0;
-		visit[ny][nx] = true;
-		ret4 = dfs(i, 4);
-		visit[ny][nx] = false;
-		if (ret4 != 0)
-		{
-			if (visit[ny - 1][nx] == true)
-				visit[ny - 1][nx] = false;
-			if (visit[ny][nx - 1] == true)
-				visit[ny][nx - 1] = false;
-		}
-
-		sum = max(sum, max(ret1, max(ret2, max(ret3, ret4))));
-
-	}
-	cout << sum;
-
-
 	return 0;
 }
