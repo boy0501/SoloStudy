@@ -23,6 +23,8 @@ int solution(vector<string> lines) {
 	int answer = 0;
 
 	vector<pair<int, int>> logs;
+	vector<int> starts;
+	vector<int> ends;
 
 	for (auto& line : lines)
 	{
@@ -44,63 +46,31 @@ int solution(vector<string> lines) {
 			}
 		}
 		int wholemilli = (hour * 3600 + min * 60 + sec) * 1000 + milli;
-		logs.push_back(make_pair(wholemilli, durtime * 1000 + durmilli));
-	}
 
-	int start = logs[0].first - logs[0].second + 1;
-	int selectEnd = logs[0].first ;
-	bool flag = false;
-	for (int i = 0; i < logs.size();)
+		starts.push_back(wholemilli - (durtime * 1000 + durmilli) + 1);
+		ends.push_back(wholemilli + 1000);
+	}
+	sort(starts.begin(), starts.end());
+
+	int start = 0;
+	int end = 0;
+	int cnt = 0;
+	int n = lines.size();
+	while (start < n && end < n)
 	{
-		int counts = 1;
-		int endtime = start + 999;
-		if (flag) break;
-		flag = true;
-		int nextleveltrigger = false;
-		for (int j = i + 1; j < logs.size(); ++j)
+		if (starts[start] < ends[end])
 		{
-			int nstart = logs[j].first - logs[j].second + 1;
-			int nend = logs[j].first;
-
-			if (nstart <= endtime)
-			{
-				counts++;
-			}
-			else {
-				flag = false;
-				if (!nextleveltrigger)
-				{
-					int nextstart = start + 1000;
-					if (start == selectEnd)
-					{
-						//검사결과가 내 마지막부근이였다면 다음블럭으로
-						++i;
-						start = logs[i].first - logs[i].second + 1;
-						selectEnd = logs[i].first;
-					}
-					else {
-						if (nextstart <= selectEnd)
-						{
-							start = nextstart; // 내 블럭이 1초 이상에도 있을 때
-						}
-						else {
-							start = selectEnd;// 내 블럭이 1초 이상에 없을 때 내 마지막을 걸음
-						}
-
-					}
-					nextleveltrigger = true;
-				}
-
-
-
-				//break;
-			}
+			cnt++;
+			answer = max(answer, cnt);
+			start++;
 		}
-		answer = max(answer, counts);
-
+		else {
+			cnt--;
+			end++;
+		}
 	}
 
-
+	answer = max(answer, cnt);
 
 
 	return answer;
