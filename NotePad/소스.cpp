@@ -35,7 +35,7 @@ int main()
 		tabul[i][0] = 1;
 		for (long long j = 1; j <= N; ++j)
 		{
-			tabul[i][j] = tabul[i][j - 1] % 1'000'000'000 + tabul[i - 1][j] % 1'000'000'000;
+			tabul[i][j] = (tabul[i][j - 1] % 1'000'000'000 + tabul[i - 1][j] % 1'000'000'000) % 1'000'000'000;
 		}
 	}
 
