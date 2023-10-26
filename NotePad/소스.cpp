@@ -21,23 +21,50 @@ constexpr int FAILCODE = 9999999;
 
 
 long long tabul[202][202]{};
+class Node {
+public:
+	int val;
+	int kil;
+	Node(int a, int b) :val(a), kil(b) {};
 
+	bool operator<(Node& a)
+	{
+		if (a.val == this->val)
+			return a.kil < this->kil;
+		return a.val < this->val;
+	}
+};
 int main()
 {
 	std::ios_base::sync_with_stdio(false);
 	std::cin.tie(NULL);
 
 	long long N, K;
-	cin >> N >> K;
-	fill_n(tabul[0], 202, 1);
-	for (long long i = 1; i <= K; ++i)
+	vector<pair<int, int>> vec;
+	//for (int i = 0; i < 5; ++i)
+	//{
+	//	int a, b;
+	//	cin >> a >> b;
+	//	vec.push_back(make_pair(a, b));
+	//}
+	//sort(vec.begin(), vec.end(), [](const pair<int,int>& a, const pair<int,int>& b) {
+	//	
+	//	if (a.first == b.first)
+	//		return a.second < b.second;
+	//	return a.first < b.first;
+	//	});
+	vector<Node> nod;
+	map<int,int> ma;
+	ma[3] = 4;
+	for (int i = 0; i < 5; ++i)
 	{
-		tabul[i][0] = 1;
-		for (long long j = 1; j <= N; ++j)
-		{
-			tabul[i][j] = (tabul[i][j - 1] % 1'000'000'000 + tabul[i - 1][j] % 1'000'000'000) % 1'000'000'000;
-		}
+		int a, b;
+		cin >> a >> b;
+		nod.push_back(Node(a, b));
 	}
+
+	sort(nod.begin(), nod.end());
+
 
 	cout << tabul[K -1][N];
 	return 0;
