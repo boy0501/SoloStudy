@@ -7,6 +7,7 @@
 #include <cstring>
 #include <string>
 #include <stack>
+#include <array>
 #include <map>
 #include <cmath>
 #include <random>
@@ -15,57 +16,91 @@
 #include <chrono>
 #include <atomic>
 #include <queue>
+#include <iterator>
 using namespace std;
 using namespace chrono;
 constexpr int FAILCODE = 9999999;
+#define CLIME true
+#define DOWN false
+int visits[101][71];
+int maps[101][71];
 
-
-long long tabul[202][202]{};
-class Node {
-public:
-	int val;
-	int kil;
-	Node(int a, int b) :val(a), kil(b) {};
-
-	bool operator<(Node& a)
-	{
-		if (a.val == this->val)
-			return a.kil < this->kil;
-		return a.val < this->val;
-	}
-};
 int main()
 {
 	std::ios_base::sync_with_stdio(false);
 	std::cin.tie(NULL);
-
-	long long N, K;
-	vector<pair<int, int>> vec;
-	//for (int i = 0; i < 5; ++i)
-	//{
-	//	int a, b;
-	//	cin >> a >> b;
-	//	vec.push_back(make_pair(a, b));
-	//}
-	//sort(vec.begin(), vec.end(), [](const pair<int,int>& a, const pair<int,int>& b) {
-	//	
-	//	if (a.first == b.first)
-	//		return a.second < b.second;
-	//	return a.first < b.first;
-	//	});
-	vector<Node> nod;
-	map<int,int> ma;
-	ma[3] = 4;
-	for (int i = 0; i < 5; ++i)
+	fill_n(visits[0], 101 * 71, -1);
+	int N, M;
+	cin >> N >> M;
+	for (int i = 1; i <= N; ++i)
 	{
-		int a, b;
-		cin >> a >> b;
-		nod.push_back(Node(a, b));
+		for (int j = 1; j <= M; ++j)
+		{
+			int k;
+			cin >> k;
+			visits[i][j] = 0;
+			maps[i][j] = k;
+		}
 	}
 
-	sort(nod.begin(), nod.end());
+	int dx[8]{ 1,0,-1,0,-1,1,-1,1 };
+	int dy[8]{ 0,1,0,-1,-1,1,1,-1 };
+	queue<tuple<int,int,int>> q;
+	int TopCnt = 0;
+	for (int i = 1; i <= N; ++i)
+	{
+		for (int j = 1; j <= M; ++j)
+		{
+			if (maps[i][j] == 0)
+				continue;
+			if (visits[i][j] == true)
+				continue;
+			int isTop = true;
+			int CurrHeight = maps[i][j];
+			q.push(make_tuple(maps[i][j], j, i));
+			visits[i][j] = true;
+			while (!q.empty())
+			{
 
+				auto next = q.front();
+				q.pop();
+				int value = get<0>(next);
+				int x = get<1>(next);
+				int y = get<2>(next);
+				for (int k = 0; k < 8; ++k)
+				{
+					int nx = x + dx[k];
+					int ny = y + dy[k];
+					if (nx < 1) continue;
+					if (ny < 1) continue;
+					if (ny > N) continue;
+					if (nx > M) continue;
+					if (maps[ny][nx] > CurrHeight)
+					{
+						isTop = false;
+					}
+					if (visits[ny][nx] == true)
+						continue;
+					if (maps[ny][nx] == 0)
+						continue;
 
-	cout << tabul[K -1][N];
+					if (maps[ny][nx] == CurrHeight) {
+						visits[ny][nx] = true;
+						q.push(make_tuple(maps[ny][nx], nx, ny));
+					}
+					else if (maps[ny][nx] > CurrHeight)
+					{
+						isTop = false;
+					}
+				}
+			}
+			if (isTop)
+				TopCnt++;
+		}
+	}
+	
+
+	cout << TopCnt << endl;
+
 	return 0;
 }
